@@ -10,7 +10,7 @@ import {
     useMutation,
 } from 'urql'
 import { SubscriptionClient } from 'subscriptions-transport-ws'
-import { AuthInfo } from './useAuth'
+import { AuthInfo, User } from './useAuth'
 import { AuthContext, AuthApiContext } from './AuthContext'
 
 export type AuthProviderProps = {
@@ -79,7 +79,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
                         setAuth(state => ({} as AuthInfo))
                         authImpl.keycloak.logout()
                     }, [])
-    const authApi = useMemo(() => ({login, logout}), [])
+    
+    const authApi = useMemo(() => ({login, logout, setUser: (user: User) => setAuth({...auth, user } as AuthInfo)}), [])
     return (
         <KeycloakProvider
             onEvent={authImpl.handleKeycloakEvent}

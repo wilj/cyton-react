@@ -60,6 +60,12 @@ export const useAuth = (overrides?: Partial<AuthInfo>): AuthInfoState => {
         ?.userSessions as any
     const user = userSessions && (userSessions[0] as User)
 
+    
+    useEffect(() => {
+        api.setUser(user)
+        return () => {}
+    }, [user])
+
     useEffect(() => {
         if (auth.token) {
             register({ input: {} })
