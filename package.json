@@ -1,6 +1,6 @@
 {
   "name": "cyton-react",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "React library for integrating with Cyton framework",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -23,25 +23,23 @@
     "react": "^16.8.0",
     "react-dom": "^16.8.0"
   },
-  "dependencies": {
-    "@playlyfe/gql": "^2.6.2",
-    "@react-keycloak/web": "^2.1.4",
+  "files": [
+    "lib"
+  ],
+  "devDependencies": {
     "@types/graphql": "^14.5.0",
     "@types/node": "^14.11.1",
     "@types/react": "^16.9.49",
+    "@types/ws": "^7.2.6",
+    "@playlyfe/gql": "^2.6.2",
+    "@react-keycloak/web": "^2.1.4",
     "classnames": "^2.2.6",
     "graphql": "^15.3.0",
     "graphql-tag": "^2.11.0",
     "keycloak-js": "^11.0.2",
     "subscriptions-transport-ws": "^0.9.18",
     "typescript": "^3.7.2",
-    "whatwg-fetch": "^3.4.1"
-  },
-  "files": [
-    "lib"
-  ],
-  "devDependencies": {
-    "@types/ws": "^7.2.6",
+    "whatwg-fetch": "^3.4.1",
     "urql": "^1.10.1"
   }
 }
