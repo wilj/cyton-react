@@ -30,6 +30,8 @@
     "@types/node": "^14.11.1",
     "@types/react": "^16.9.49",
     "classnames": "^2.2.6",
+    "graphql": "^15.3.0",
+    "graphql-tag": "^2.11.0",
     "keycloak-js": "^11.0.2",
     "subscriptions-transport-ws": "^0.9.18",
     "typescript": "^3.7.2",
@@ -40,8 +42,6 @@
   ],
   "devDependencies": {
     "@types/ws": "^7.2.6",
-    "graphql": "^15.3.0",
-    "graphql-tag": "^2.11.0",
     "urql": "^1.10.1"
   }
 }
