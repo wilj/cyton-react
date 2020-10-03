@@ -18,18 +18,19 @@ export interface AuthClients {
     urqlClient: any
     subscriptionClient: any
 }
-export function createAuthClients(baseDomain: string, realm: string, apiDomain?: string) : AuthClients {
-    const clientId = realm
+export function createAuthClients(baseDomain: string, realm: string, clientId: string, apiDomain?: string) : AuthClients {
     const authUrl = `https://auth.${baseDomain}/auth`
-    
-    // TODO FIXME urls need to be props
-    const baseGraphqlUrl = apiDomain ? (apiDomain + `/graphql`) : `://admin.${baseDomain}/graphql`
-    const subscriptionClient = new SubscriptionClient(`wss${baseGraphqlUrl}`, {})
-    
+
     const keycloak = Keycloak({  url: authUrl, realm, clientId })
     
+    // TODO FIXME urls need to be props
+    const baseGraphqlUrl = apiDomain ? (`://${apiDomain}/graphql`) : `://admin.${baseDomain}/graphql`
+    const subscriptionClient = new SubscriptionClient(`wss${baseGraphqlUrl}`, {})
+    const graphqlUrl = `https${baseGraphqlUrl}`
+    
+    console.log(`Creating graphql client with url: ${graphqlUrl}`)
     const urqlClient = createClient({
-        url: `https${baseGraphqlUrl}`,
+        url: graphqlUrl,
         fetchOptions: () => {
             return keycloak.token
                 ? {
@@ -62,6 +63,7 @@ export function createAuthClients(baseDomain: string, realm: string, apiDomain?:
 export type AuthProviderProps = {
     baseDomain: string
     realm: string
+    clientId: string
     apiDomain?: string
     busyElement?: JSX.Element
 }
@@ -69,12 +71,13 @@ export type AuthProviderProps = {
 export const AuthProvider: React.FC<AuthProviderProps> = ({
     baseDomain,
     realm,
+    clientId,
     apiDomain,
     busyElement,
     children,
 }) => {
     const [auth, setAuth] = useState({} as AuthInfo)  
-    const clients = useMemo(() => createAuthClients(baseDomain, realm, apiDomain), [baseDomain, realm, apiDomain])
+    const clients = useMemo(() => createAuthClients(baseDomain, realm, clientId, apiDomain), [baseDomain, realm, apiDomain])
     const login = useCallback(() => clients.keycloak.login({ scope: 'profile' }), [])
     const logout = useCallback(() => {
                         setAuth(state => ({} as AuthInfo))
