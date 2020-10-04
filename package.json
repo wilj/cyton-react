@@ -27,7 +27,8 @@
     "lib"
   ],
   "dependencies": {
-    "subscriptions-transport-ws": "^0.9.18"
+    "subscriptions-transport-ws": "^0.9.18",
+    "urql": "^1.10.1"
   },
   "devDependencies": {
     "@types/graphql": "^14.5.0",
@@ -40,7 +41,6 @@
     "graphql-tag": "^2.11.0",
     "keycloak-js": "^11.0.2",
     "typescript": "^3.7.2",
-    "whatwg-fetch": "^3.4.1",
-    "urql": "^1.10.1"
+    "whatwg-fetch": "^3.4.1"
   }
 }
