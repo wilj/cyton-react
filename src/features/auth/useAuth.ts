@@ -1,11 +1,7 @@
 import { useKeycloak } from '@react-keycloak/web'
-import { useEffect, useContext } from 'react'
+import { useEffect, useCallback } from 'react'
 import * as Urql from 'urql';
 import gql from 'graphql-tag';
-import { getLocalStorage } from '../state/useLocalStorage';
-import { AuthContext, AuthApiContext } from './AuthContext';
-
-const storageKey = `auth`
 
 export type User = {
     id: number
@@ -26,23 +22,7 @@ export type AuthInfoState = {
     hasRole: (role: string) => boolean
 }
 
-const saveState = (state: AuthInfo) => {
-    getLocalStorage().setItem(storageKey, JSON.stringify(state))
-}
-    
-const loadState = () => {
-    const state = JSON.parse(getLocalStorage().getItem(storageKey) || JSON.stringify({})) as AuthInfo
-    return state
-}
-
-
-
-
-export const useAuth = (overrides?: Partial<AuthInfo>): AuthInfoState => {
-    const [keycloak] = useKeycloak()
-    const auth = useContext(AuthContext)
-    const api = useContext(AuthApiContext)
-
+export const useAuth = (overrides?: Partial<AuthInfo>): AuthInfoState => {    
     const [registerResponse, register] = Urql.useMutation(gql`
         mutation RegisterUser($input: RegisterUserInput!) {
             registerUser(input: $input) {
@@ -59,26 +39,33 @@ export const useAuth = (overrides?: Partial<AuthInfo>): AuthInfoState => {
     const userSessions = registerResponse.data?.registerUser
         ?.userSessions as any
     const user = userSessions && (userSessions[0] as User)
-
     
-    useEffect(() => {
-        api.setUser(user)
-        return () => {}
-    }, [user])
+    const {keycloak} = useKeycloak()
+    
+    const login = useCallback(() => {
+        if (keycloak) {
+            keycloak.login({ scope: 'profile' })
+        }
+    }, [keycloak])
+
+    const logout = useCallback(() => {
+        if (keycloak) {
+            keycloak.logout()
+        }
+    }, [keycloak])
+
 
     useEffect(() => {
-        if (auth.token) {
-            register({ input: {} })
-        }
+        register({ input: {} })
         return () => {}
-    }, [auth.token])
+    }, [keycloak?.token])
 
    
     const hasRole = (role: string) =>
-        (auth.user && auth.user.jwt.realm_access.roles.indexOf(role) !== -1) ||
+        (user && user.jwt.realm_access.roles.indexOf(role) !== -1) ||
         false
 
-    return { auth, ...api, hasRole }
+    return {auth: {user, token: keycloak?.token}, login, logout, hasRole }
 }
 
 

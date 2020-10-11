@@ -1,23 +1,21 @@
-import React, { useState, useCallback, useMemo, useEffect } from 'react'
-import { KeycloakProvider, KeycloakEventHandler } from '@react-keycloak/web'
+import React, { useState } from 'react'
+import { KeycloakProvider } from '@react-keycloak/web'
 import Keycloak from 'keycloak-js'
 import {
     createClient,
     debugExchange,
     fetchExchange,
     Provider as UrqlClientProvider,
-    subscriptionExchange,
-    useMutation,
+    subscriptionExchange
 } from 'urql'
 import { SubscriptionClient } from 'subscriptions-transport-ws'
-import { AuthInfo, User } from './useAuth'
-import { AuthContext, AuthApiContext } from './AuthContext'
 
 export interface AuthClients {
     keycloak: any
     urqlClient: any
     subscriptionClient: any
 }
+
 export function createAuthClients(baseDomain: string, realm: string, clientId: string, apiDomain?: string) : AuthClients {
     const authUrl = `https://auth.${baseDomain}/auth`
 
@@ -50,7 +48,7 @@ export function createAuthClients(baseDomain: string, realm: string, clientId: s
             */
             fetchExchange,
             subscriptionExchange({
-                forwardSubscription: operation =>
+                forwardSubscription: (operation:any) =>
                     subscriptionClient.request(operation),
             }),
         ],
@@ -76,36 +74,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     busyElement,
     children,
 }) => {
-    const [auth, setAuth] = useState({} as AuthInfo)  
-    const clients = useMemo(() => createAuthClients(baseDomain, realm, clientId, apiDomain), [baseDomain, realm, apiDomain])
-    const login = useCallback(() => clients.keycloak.login({ scope: 'profile' }), [])
-    const logout = useCallback(() => {
-                        setAuth(state => ({} as AuthInfo))
-                        clients.keycloak.logout()
-                    }, [])
+
+    const [clients] = useState(() => createAuthClients(baseDomain, realm, clientId, apiDomain))
     
-    const authApi = useMemo(() => ({login, logout, setUser: (user: User) => setAuth({...auth, user } as AuthInfo)}), [])
+
     const loading = busyElement || <div className="cyton-loading">Loading...</div> 
-    const handleKeycloakEvent: KeycloakEventHandler = (event, error) => {
-        if (auth.token !== clients.keycloak.token) {
-            setAuth({...auth, token: clients.keycloak.token})
-        }
+        
+    if (clients) {
+        console.log(`using clients`, clients)
+        return (
+            <KeycloakProvider
+                LoadingComponent={ loading }
+                keycloak={clients.keycloak}
+            >
+                <UrqlClientProvider value={clients.urqlClient}>
+                    {children}
+                </UrqlClientProvider>
+            </KeycloakProvider>
+        )
     }
-    
-    console.log(`using clients`, clients)
-    return (
-        <KeycloakProvider
-            onEvent={handleKeycloakEvent}
-            LoadingComponent={ loading }
-            keycloak={clients.keycloak}
-        >
-            <UrqlClientProvider value={clients.urqlClient}>
-                <AuthContext.Provider value={auth}>
-                    <AuthApiContext.Provider value={authApi}>
-                        {children}
-                    </AuthApiContext.Provider>
-                </AuthContext.Provider>
-            </UrqlClientProvider>
-        </KeycloakProvider>
-    )
+
+    return <div>`Loading clients...`</div>
+
 }
