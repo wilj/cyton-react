@@ -4,13 +4,14 @@ export interface AuthClients {
     urqlClient: any;
     subscriptionClient: any;
 }
-export declare function createAuthClients(baseDomain: string, realm: string, clientId: string, apiDomain?: string): AuthClients;
 export declare type AuthProviderProps = {
-    baseDomain: string;
+    authDomain: string;
     realm: string;
     clientId: string;
-    apiDomain?: string;
+    apiDomain: string;
     busyElement?: JSX.Element;
+    cacheEnabled?: boolean;
 };
+export declare function createAuthClients(props: AuthProviderProps): AuthClients;
 export declare const AuthProvider: React.FC<AuthProviderProps>;
 //# sourceMappingURL=AuthProvider.d.ts.map
